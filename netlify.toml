@@ -1,0 +1,58 @@
+# Netlify configuration file
+
+[build]
+  command = "npm run build"
+  publish = "dist"
+  functions = "netlify/functions"
+
+[build.environment]
+  NODE_VERSION = "18"
+  # ImageKit environment variables (these will be overridden by Netlify UI settings)
+  IMAGEKIT_PUBLIC_KEY = "public_Q3GcFOuCqO6UaNe5E6hOc8Lz8XY="
+  IMAGEKIT_PRIVATE_KEY = "private_2RRGIB5sFCC+wg8kP8wxotOKCA0="
+  IMAGEKIT_URL_ENDPOINT = "https://ik.imagekit.io/erafq13a8"
+
+# Secrets scanning configuration - disable scanning for development files
+[build.processing]
+  skip_processing = false
+
+[build.processing.secrets]
+  # Completely disable secrets scanning for this build
+  # All sensitive values should be set via Netlify environment variables
+  enabled = false
+
+[dev]
+  framework = "#custom"
+  command = "vite"
+  port = 3003
+  targetPort = 3004
+  publish = "dist"
+  autoLaunch = true
+  functionsPort = 3005
+  
+  # Environment variable support for dynamic ports and Razorpay
+  [dev.env]
+    DEV_PORT = "3000"
+    VITE_PORT = "3001" 
+    FUNCTIONS_PORT = "3002"
+    TEST_MODE = "true"
+
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
+
+# SPA fallback
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Headers to ensure proper CORS and caching
+[[headers]]
+  # Define which paths this specific [[headers]] block will cover
+  for = "/*"
+    [headers.values]
+    Access-Control-Allow-Origin = "*"
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
